@@ -1,4 +1,4 @@
-# ExeclToJson
+# ExcelToJson
 纯AHK编写的导表工具，支持复杂的excel结构，支持跨文件的主从引用，一键导出JSON，转JSON部分使用了飞跃大佬的JSON.ahk库
 版本需要AHK1.1.37.01+,需要安装Excel(因为使用了COM对象)
 
