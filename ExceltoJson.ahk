@@ -90,8 +90,9 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
                         Case "id":
                             (key_main!="" && ahk_obj[key_main][(table_struct[col][2])]:=text)
                         Case "timestamp":
-                            txet:=Unix_timestamp(text)
-                            , key_main!="" ? ahk_obj[key_main][(table_struct[col][1])]:=text : row_obj[(table_struct[col][1])]:=text
+                            txet:=Unix_timestamp(text), key_main!="" ? ahk_obj[key_main][(table_struct[col][1])]:=text : row_obj[(table_struct[col][1])]:=text
+                        Case "timestamp13":
+                            txet:=Unix_timestamp(text,13), key_main!="" ? ahk_obj[key_main][(table_struct[col][1])]:=text : row_obj[(table_struct[col][1])]:=text
                         Default:
                             key_main!="" ? ahk_obj[key_main][(table_struct[col][1])]:=text : row_obj[(table_struct[col][1])]:=text
                         }
@@ -212,15 +213,17 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
             s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_haskey_cache
             s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
+        for k, v in follower_table_nokey_cache
+            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
     }
     else if(exportmode==3) ;不导出合并数据后的表，强制导出所有原始表
     {
         for k, v in master_table_cache
             s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_haskey_cache
-            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
         for k, v in follower_table_nokey_cache
-            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
     }
     else if(exportmode==-1) ;不导出，调试用
         s:=""
