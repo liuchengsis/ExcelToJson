@@ -1,4 +1,4 @@
-﻿; 从src目录检索xlsx文件并导出json至dest目录,exportmode决定导出模式
+﻿; 从xlsx_path目录检索xlsx文件并导出json至json_path目录,exportmode决定导出模式
 excel_tojson(xlsx_path,json_path,exportmode:=0)
 {
     static type_True:= Object("json_value", "true", "value", 1)
