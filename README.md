@@ -67,57 +67,57 @@
 excel_tojson(xlsx_path,json_path,exportmode:=0)
 ```
 
-将指定目录下所有xlsx文件按所选模式导出为json
-参数`xlsx_path`excel表所在目录，导出时会递归所有子文件夹，目录及其子文件夹内的所有xlsx格式文件都会视为数据源
-参数`json_path`导出的json文件存放目录
-参数`exportmode`导出模式，默认为`0`
-`exportmode=0`只导出合并数据后的主表，默认值
-`exportmode=1`导出合并数据后的主表和含主键的从表(合并数据后的从表数据中不存在外键)
-`exportmode=2`导出合并数据后的主表和所有原始从表(从表的外键也会保留)
-`exportmode=3`不合并数据，强制导出所有原始表
-`exportmode=4`不导出，调试用
+* 将指定目录下所有xlsx文件按所选模式导出为json
+- 参数`xlsx_path`excel表所在目录，导出时会递归所有子文件夹，目录及其子文件夹内的所有xlsx格式文件都会视为数据源
+- 参数`json_path`导出的json文件存放目录
+- 参数`exportmode`导出模式，默认为`0`
+- `exportmode=0`只导出合并数据后的主表，默认值
+- `exportmode=1`导出合并数据后的主表和含主键的从表(合并数据后的从表数据中不存在外键)
+- `exportmode=2`导出合并数据后的主表和所有原始从表(从表的外键也会保留)
+- `exportmode=3`不合并数据，强制导出所有原始表
+- `exportmode=-1`不导出，调试用
 
 
 ```
 json_toobj(s)
 ```
 
-将json字符串解析为ahk对象
+- 将json字符串解析为ahk对象
 
 
 ```
 ahk_tojson(obj, space:="")
 ```
 
-将ahk对象转换为json字符串
+- 将ahk对象转换为json字符串
 
 
 ```
 typeof(v)
 ```
 
-检查类型，可以分辨五种ahk基本类型
+- 检查类型，可以分辨五种ahk基本类型
 
 
 ```
 create_jsonfile(dest,sheetname,s)
 ```
 
-创建json文件
-`dest`拟导出json文件的目录
-`sheetname`表名作为文件名
-`s`json字符串
+- 创建json文件
+- `dest`拟导出json文件的目录
+- `sheetname`表名作为文件名
+- `s`json字符串
 
 
 ```
 errlog(errcode,filepath,sheetname,row,col)
 ```
 
-错误日志打印函数
+- 错误日志打印函数
 
 
 ```
 Unix_timestamp(formattedtime,len:=10)
 ```
 
-将格式日期转换为时间戳，默认输出10位时间戳，可以改变第二个参数的值为`13`来输出13位的时间戳
+- 将格式日期转换为时间戳，默认输出10位时间戳，可以改变第二个参数的值为`13`来输出13位的时间戳
