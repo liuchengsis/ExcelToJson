@@ -1,7 +1,8 @@
 # ExcelToJson
 纯AHK编写的导表工具，支持复杂的excel结构，支持跨文件的主从引用，一键导出JSON，转JSON部分使用了飞跃大佬的JSON.ahk库
 版本需要AHK1.1.37.01+,需要安装Excel(因为使用了COM对象)
-
+GUI4ExcelToJson是为ExcelToJson库编写的可视化UI，整合了导出进度可视化、目录管理、配置管理、日志管理等功能，可以自动生成配置文件
+编译后可以在Windows平台不依赖任何代码环境运行
 
 
 ### 主要功能：
