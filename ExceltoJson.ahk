@@ -1,4 +1,4 @@
-﻿; 从xlsx_path目录检索xlsx文件并导出json至json_path目录,exportmode决定导出模式
+; 从xlsx_path目录检索xlsx文件并导出json至json_path目录,exportmode决定导出模式
 excel_tojson(xlsx_path,json_path,exportmode:=0)
 {
     static type_True:= Object("json_value", "true", "value", 1)
@@ -23,7 +23,7 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
             if SubStr(ws.Name,1,1)="!"
                 continue
             ahk_obj:={}, table_type:=1, table_struct:={}, row:=1, col:=1, index_title:=0, owner_col:=0,text:="", while_ok:=1, blank:=0 ;table_struct[第几列]=>[字段名,类型码]
-            InStr(ws.Name,"@") ? (table_type++, parent_name:=SubStr(ws.Name, InStr(ws.Name,"@")+1), sheetname:=SubStr(ws.Name, 1, InStr(ws.Name,"@")-1)) : sheetname:=ws.Name
+                , InStr(ws.Name,"@") ? (table_type++, parent_name:=SubStr(ws.Name, InStr(ws.Name,"@")+1), sheetname:=SubStr(ws.Name, 1, InStr(ws.Name,"@")-1)) : sheetname:=ws.Name
             while while_ok
             {
                 text:=ws.cells[row,col].value
@@ -83,7 +83,7 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
                             else if(RegExMatch(text,"i)^false$"))
                                 text:=type_False.Clone()
                             else
-                                errlog("Type_Error",v,sheetname,row,col)
+                                errlog("Type_Error_Boolean",wb.Name,ws.Name,row,col)
                             key_main!="" ? ahk_obj[key_main][(table_struct[col][1])]:=text : row_obj[(table_struct[col][1])]:=text
                         Case "owner":
                             key_main!="" ? ahk_obj[key_main]["owner"]:=text : row_obj["owner"]:=text
@@ -120,8 +120,15 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
         }
         wb.Close(), wb:=""
     }
-    ; 从缓存中取出对象，依据引用关系重组对象后导出json，先备份缓存，以便依据不同模式导出
-    master_table_cache:=master_table.Clone(), follower_table_nokey_cache:=follower_table_nokey.Clone(), follower_table_haskey_cache:=follower_table_haskey.Clone()
+    ; 先备份缓存，以便依据不同模式导出
+    master_table_cache:={}, follower_table_nokey_cache:={}, follower_table_haskey_cache:={}
+    for k, v in master_table
+        master_table_cache[k]:=ahk_tojson(v)
+    for k, v in follower_table_nokey
+        follower_table_nokey_cache[k]:=ahk_tojson(v[1])
+    for k, v in follower_table_haskey
+        follower_table_haskey_cache[k]:=ahk_tojson(v[1])
+    ; 从缓存中取出对象，依据引用关系重组对象后导出json
     for k, v in follower_table_nokey ;k->sheetname, v->[ahk_obj.Clone(),parent_name,0]
     {
         if(v[3]==0)
@@ -154,6 +161,8 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
                 }
                 v[3]:=1
             }
+            else
+                v[3]:=-1, errlog("Table_Error_NoMaster",k,v[2])
         }
     }
     for k, v in follower_table_haskey ;k->sheetname, v->[ahk_obj.Clone(),parent_name,0]
@@ -175,12 +184,9 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
                 v[3]:=1
             }
             else
-                v[3]:=-1
+                v[3]:=-1, errlog("Table_Error_Circular_Reference",k,v[2])
         }
-    }
-    for k, v in follower_table_haskey
-    {
-        if(v[3]==0 && master_table.HasKey(v[2])) ;再查找主表集合
+        else if(v[3]==0 && master_table.HasKey(v[2])) ;再查找主表集合
         {
             for i, j in v[1]
             {
@@ -194,6 +200,8 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
             }
             v[3]:=1
         }
+        else
+            v[3]:=-1, errlog("Table_Error_NoMaster",k,v[2])
     }
     if(exportmode==0) ;只导出合并数据后的主表
     {
@@ -207,29 +215,28 @@ excel_tojson(xlsx_path,json_path,exportmode:=0)
         for k, v in follower_table_haskey
             (v[3]==1 && (s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)))
     }
-    else if(exportmode==2) ;导出合并数据后的1类表和所有原始3类表
+    else if(exportmode==2) ;导出合并数据后的1类表和所有原始2类3类表
     {
         for k, v in master_table
             s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_haskey_cache
-            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_nokey_cache
-            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
     }
     else if(exportmode==3) ;不导出合并数据后的表，强制导出所有原始表
     {
         for k, v in master_table_cache
             s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_haskey_cache
-            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
         for k, v in follower_table_nokey_cache
-            s:=ahk_tojson(v[1]), create_jsonfile(dest,k,s)
+            s:=ahk_tojson(v), create_jsonfile(dest,k,s)
     }
     else if(exportmode==-1) ;不导出，调试用
         s:=""
     xl.Quit
     Process, Close, %p_pid%
-    ; MsgBox, 运行完毕
     return
 }
 
@@ -345,9 +352,9 @@ typeof(v)
 }
 
 ; 创建json文件
-create_jsonfile(dest,sheetname,s)
+create_jsonfile(path,filename,s)
 {
-    file := FileOpen(dest . "\" . sheetname . ".json", "w", "UTF-8"), file.Write(s), file.Close()
+    file := FileOpen(path . "\" . filename . ".json", "w", "UTF-8"), file.Write(s), file.Close()
     return
 }
 
